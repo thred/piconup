@@ -1,5 +1,7 @@
 package io.github.thred.piconup.image;
 
+import io.github.thred.piconup.PiconUpTarget;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -12,9 +14,7 @@ public interface ImageIndexEntry
 
     public String getSimplifiedName();
 
-    public void writeXPicon(File file) throws IOException;
-
-    public void writePicon(File file) throws IOException;
+    public void write(PiconUpTarget target, File file) throws IOException;
 
     public void cleanup();
 

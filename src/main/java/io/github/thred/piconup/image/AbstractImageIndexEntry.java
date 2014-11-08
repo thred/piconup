@@ -1,5 +1,6 @@
 package io.github.thred.piconup.image;
 
+import io.github.thred.piconup.PiconUpTarget;
 import io.github.thred.piconup.util.PiconUpUtil;
 
 import java.awt.Graphics2D;
@@ -19,8 +20,6 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
     private final String simplifiedName;
 
     private BufferedImage originalImage;
-    private BufferedImage xPicon;
-    private BufferedImage picon;
 
     public AbstractImageIndexEntry(String filename)
     {
@@ -81,35 +80,14 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
     }
 
     @Override
-    public void writeXPicon(File file) throws IOException
+    public void write(PiconUpTarget target, File file) throws IOException
     {
-        ImageIO.write(getXPicon(), "png", file);
+        ImageIO.write(get(target), "png", file);
     }
 
-    @Override
-    public void writePicon(File file) throws IOException
+    protected BufferedImage get(PiconUpTarget target) throws IOException
     {
-        ImageIO.write(getPicon(), "png", file);
-    }
-
-    protected BufferedImage getXPicon() throws IOException
-    {
-        if (xPicon != null)
-        {
-            return xPicon;
-        }
-
-        return xPicon = createImage(220, 132);
-    }
-
-    protected BufferedImage getPicon() throws IOException
-    {
-        if (picon != null)
-        {
-            return picon;
-        }
-
-        return picon = createImage(100, 60);
+        return createImage(target.getWidth(), target.getHeight());
     }
 
     protected BufferedImage createImage(int width, int height) throws IOException

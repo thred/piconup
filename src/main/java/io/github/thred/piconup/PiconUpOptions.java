@@ -127,7 +127,7 @@ public class PiconUpOptions
         {
             File dir = new File(cmd.getOptionValue(ARG_DIR));
 
-            if (!dir.canWrite())
+            if ((!dir.mkdirs()) && (!dir.canWrite()))
             {
                 System.err.println("Cannot write to path: " + dir.getAbsolutePath());
                 System.exit(1);

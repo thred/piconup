@@ -87,31 +87,23 @@ public class PiconUp
         throws PiconUpException
     {
         String filename = service.getTargetFilename();
-        File xPiconFile = new File(dir, "enigma2/XPicon/picon/" + filename);
 
-        xPiconFile.getParentFile().mkdirs();
-
-        try
+        for (PiconUpTarget target : PiconUpTarget.values())
         {
-            entry.writeXPicon(xPiconFile);
-        }
-        catch (IOException e)
-        {
-            throw new PiconUpException("Failed to write " + xPiconFile, e);
-        }
+            File file = new File(dir, target.getPath() + filename);
 
-        File piconFile = new File(dir, "enigma2/picon/" + filename);
+            System.out.printf("  Writing %s ...\n", file);
+            
+            file.getParentFile().mkdirs();
 
-        piconFile.getParentFile().mkdirs();
-
-        try
-        {
-            entry.writeXPicon(piconFile);
+            try
+            {
+                entry.write(target, file);
+            }
+            catch (IOException e)
+            {
+                throw new PiconUpException("Failed to write " + file, e);
+            }
         }
-        catch (IOException e)
-        {
-            throw new PiconUpException("Failed to write " + xPiconFile, e);
-        }
-
     }
 }
