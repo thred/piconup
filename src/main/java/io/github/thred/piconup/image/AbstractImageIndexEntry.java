@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import javax.imageio.ImageIO;
 
@@ -83,6 +84,12 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
     public void write(PiconUpTarget target, File file) throws IOException
     {
         ImageIO.write(get(target), "png", file);
+    }
+
+    @Override
+    public void write(PiconUpTarget target, OutputStream out) throws IOException
+    {
+        ImageIO.write(get(target), "png", out);
     }
 
     protected BufferedImage get(PiconUpTarget target) throws IOException

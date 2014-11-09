@@ -3,8 +3,14 @@ package io.github.thred.piconup;
 import io.github.thred.piconup.image.ImageIndex;
 import io.github.thred.piconup.openwebif.GetAllServicesRequest;
 import io.github.thred.piconup.openwebif.Service;
+import io.github.thred.piconup.util.PiconUpUserInfo;
+import io.github.thred.piconup.util.Wildcard;
 
 import java.util.List;
+
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
 public class PiconUpState
 {
@@ -14,6 +20,8 @@ public class PiconUpState
     private List<Service> services = null;
 
     private ImageIndex imageIndex = null;
+
+    private Session session = null;
 
     public PiconUpState(PiconUpOptions options)
     {
@@ -50,10 +58,17 @@ public class PiconUpState
             throw new PiconUpException("Failed to request services");
         }
 
+        String[] patterns = options.getPatterns();
+
+        if ((patterns != null) && (patterns.length > 0))
+        {
+            services.removeIf((service) -> !Wildcard.match(service.getSimplifiedName(), patterns));
+        }
+
         ImageIndex imageIndex = getImageIndex();
-        
+
         services.forEach((service) -> service.setImageIndexEntry(imageIndex.find(service.getName())));
-        
+
         return services;
     }
 
@@ -68,4 +83,36 @@ public class PiconUpState
 
         return imageIndex;
     }
+
+    public void openSession() throws PiconUpException
+    {
+        JSch jsch = new JSch();
+
+        try
+        {
+            session = jsch.getSession(options.getUser(), options.getHost(), 22);
+            session.setPassword(options.getPassword());
+            session.setUserInfo(new PiconUpUserInfo());
+            session.connect();
+        }
+        catch (JSchException e)
+        {
+            throw new PiconUpException("Failed to connect via SSH", e);
+        }
+    }
+
+    public void closeSession()
+    {
+        if (session != null)
+        {
+            session.disconnect();
+            session = null;
+        }
+    }
+
+    public Session getSession()
+    {
+        return session;
+    }
+
 }

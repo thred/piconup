@@ -9,14 +9,18 @@ public class Service implements Comparable<Service>
 
     private final String reference;
     private final String name;
+    private final String simplifiedName;
 
     private ImageIndexEntry imageIndexEntry;
 
     public Service(String reference, String name)
     {
         super();
+
         this.reference = reference;
         this.name = name;
+
+        simplifiedName = PiconUpUtil.simplify(name);
     }
 
     public String getReference()
@@ -39,6 +43,11 @@ public class Service implements Comparable<Service>
     public String getName()
     {
         return name;
+    }
+
+    public String getSimplifiedName()
+    {
+        return simplifiedName;
     }
 
     public ImageIndexEntry getImageIndexEntry()
@@ -124,7 +133,7 @@ public class Service implements Comparable<Service>
     @Override
     public String toString()
     {
-        return String.format("%-24s | %-24s | %-34s | %s", getName(), PiconUpUtil.simplify(getName()), getReference(),
+        return String.format("%-24s | %-24s | %-34s | %s", getName(), getSimplifiedName(), getReference(),
             getSourceFilename());
     }
 

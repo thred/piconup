@@ -3,6 +3,8 @@ package io.github.thred.piconup;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -22,7 +24,7 @@ public class PiconUpOptions
     private static final String ARG_RECURSIVE = "recursive";
     private static final String ARG_LIST = "list";
     private static final String ARG_DIR = "dir";
-    private static final String ARG_SSL = "ssl";
+    private static final String ARG_SSH = "ssh";
     private static final String ARG_ZIP = "zip";
     private static final String ARG_HELP = "help";
 
@@ -31,7 +33,7 @@ public class PiconUpOptions
         Options options = new Options();
 
         options.addOption("h", ARG_HOST, true,
-            "The hostname or IP address of STB (used for both, the OpenWebIF and the SSL connection).");
+            "The hostname or IP address of STB (used for both, the OpenWebIF and the SSH connection).");
         options.addOption(null, ARG_OPEN_WEB_IF_URL, true,
             "The URL to the OpenWebIF. Uses \"http://<host>\" if not specified.");
         options.addOption("u", ARG_USER, true, "The username for login, default is \"root\".");
@@ -40,7 +42,7 @@ public class PiconUpOptions
         options.addOption("r", ARG_RECURSIVE, false, "Search for images in subfolders.");
         options.addOption("l", ARG_LIST, false, "Lists all known services collected from the STB.");
         options.addOption("d", ARG_DIR, true, "Write the images to the specified path.");
-        options.addOption(null, ARG_SSL, false, "Use an SSL connection and update all images on the STB.");
+        options.addOption(null, ARG_SSH, false, "Use an SSH connection and update all images on the STB.");
         options.addOption(null, ARG_ZIP, true, "Write the images into a ZIP file.");
         options.addOption("?", ARG_HELP, false, "Shows this help.");
 
@@ -136,7 +138,7 @@ public class PiconUpOptions
             result.setDir(dir);
         }
 
-        result.setSsl(cmd.hasOption(ARG_SSL));
+        result.setSsh(cmd.hasOption(ARG_SSH));
 
         if (cmd.hasOption(ARG_ZIP))
         {
@@ -151,6 +153,15 @@ public class PiconUpOptions
             result.setZip(zip);
         }
 
+        List<String> patterns = new ArrayList<>();
+
+        for (String arg : cmd.getArgs())
+        {
+            patterns.add(arg.toUpperCase());
+        }
+
+        result.setPatterns(patterns.toArray(new String[patterns.size()]));
+
         return result;
     }
 
@@ -162,8 +173,9 @@ public class PiconUpOptions
     private boolean recursive = false;
     private boolean list = false;
     private File dir;
-    private boolean ssl = false;
+    private boolean ssh = false;
     private File zip;
+    private String[] patterns;
 
     public PiconUpOptions()
     {
@@ -269,14 +281,14 @@ public class PiconUpOptions
         this.dir = dir;
     }
 
-    public boolean isSsl()
+    public boolean isSsh()
     {
-        return ssl;
+        return ssh;
     }
 
-    public void setSsl(boolean ssl)
+    public void setSsh(boolean ssh)
     {
-        this.ssl = ssl;
+        this.ssh = ssh;
     }
 
     public File getZip()
@@ -287,6 +299,16 @@ public class PiconUpOptions
     public void setZip(File zip)
     {
         this.zip = zip;
+    }
+
+    public String[] getPatterns()
+    {
+        return patterns;
+    }
+
+    public void setPatterns(String[] patterns)
+    {
+        this.patterns = patterns;
     }
 
     public static void printHelp(Options options)
