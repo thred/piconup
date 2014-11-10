@@ -3,6 +3,7 @@ package io.github.thred.piconup.image;
 import io.github.thred.piconup.PiconUpTarget;
 import io.github.thred.piconup.util.PiconUpUtil;
 
+import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -10,11 +11,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
 public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 {
+
+    private final Map<Dimension, BufferedImage> cachedImages = new HashMap<>();
 
     private final String filename;
     private final String name;
@@ -78,6 +83,7 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
     public void cleanup()
     {
         originalImage = null;
+        cachedImages.clear();
     }
 
     @Override
@@ -94,7 +100,19 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 
     protected BufferedImage get(PiconUpTarget target) throws IOException
     {
-        return createImage(target.getWidth(), target.getHeight());
+        Dimension dimension = target.getDimension();
+        BufferedImage result = cachedImages.get(dimension);
+
+        if (result != null)
+        {
+            return result;
+        }
+
+        result = createImage(dimension.width, dimension.height);
+
+        cachedImages.put(dimension, result);
+
+        return result;
     }
 
     protected BufferedImage createImage(int width, int height) throws IOException

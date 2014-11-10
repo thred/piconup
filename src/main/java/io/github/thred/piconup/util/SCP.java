@@ -152,11 +152,16 @@ public class SCP implements Closeable
             out.flush();
             waitForAck();
 
-            write(split[1], contentStream, contentLength);
-
-            out.write("E\n".getBytes());
-            out.flush();
-            waitForAck();
+            try
+            {
+                write(split[1], contentStream, contentLength);
+            }
+            finally
+            {
+                out.write("E\n".getBytes());
+                out.flush();
+                waitForAck();
+            }
         }
         else
         {

@@ -87,6 +87,7 @@ public class PiconUpState
         ConsoleSCPUserInfo userInfo = new ConsoleSCPUserInfo();
 
         userInfo.setYes(true);
+        userInfo.setQuiet(true);
         userInfo.setPassword(options.getPassword());
 
         try

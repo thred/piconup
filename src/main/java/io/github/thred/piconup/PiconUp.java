@@ -140,9 +140,10 @@ public class PiconUp
 
         for (PiconUpTarget target : PiconUpTarget.values())
         {
-            String targetFile = scp.getBasePath() + "/" + target.getPath() + filename;
+            String targetFile = target.getPath() + filename;
+            String targetPath = scp.getBasePath() + "/" + targetFile;
 
-            System.out.printf("  Sending %s ...\n", targetFile);
+            System.out.printf("  Sending %s ...\n", targetPath);
 
             try
             {
@@ -155,11 +156,11 @@ public class PiconUp
                     bytes = out.toByteArray();
                 }
 
-                scp.write(target.getPath(), bytes);
+                scp.write(targetFile, bytes);
             }
             catch (IOException e)
             {
-                throw new PiconUpException("Failed to send " + targetFile, e);
+                throw new PiconUpException("Failed to send " + targetPath, e);
             }
         }
     }
