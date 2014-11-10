@@ -90,7 +90,7 @@ public class PiconUp
             {
                 double coverage = entry.estimateCoverage();
 
-                System.out.printf("  Coverage: %5.1f %%\n", coverage);
+                System.out.printf("  Coverage: %5.1f %%\n", coverage * 100);
 
                 scale = Math.min(options.getOptimize() / coverage, 1);
             }
