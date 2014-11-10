@@ -21,6 +21,7 @@ public class PiconUpOptions
     private static final String ARG_USER = "user";
     private static final String ARG_PASSWORD = "password";
     private static final String ARG_IMAGES = "images";
+    private static final String ARG_OPTIMIZE = "optimize";
     private static final String ARG_RECURSIVE = "recursive";
     private static final String ARG_LIST = "list";
     private static final String ARG_DIR = "dir";
@@ -39,6 +40,8 @@ public class PiconUpOptions
         options.addOption("u", ARG_USER, true, "The username for login, default is \"root\".");
         options.addOption("p", ARG_PASSWORD, true, "The password for login, default is \"\".");
         options.addOption("i", ARG_IMAGES, true, "The source directory containing all images, default is \".\".");
+        options.addOption("o", ARG_OPTIMIZE, true,
+            "Optimize the coverage of the image to cover the specified percentage of space.");
         options.addOption("r", ARG_RECURSIVE, false, "Search for images in subfolders.");
         options.addOption("l", ARG_LIST, false, "Lists all known services collected from the STB.");
         options.addOption("d", ARG_DIR, true, "Write the images to the specified path.");
@@ -121,6 +124,26 @@ public class PiconUpOptions
             result.setImagePath(imagePath);
         }
 
+        if (cmd.hasOption(ARG_OPTIMIZE))
+        {
+            String value = cmd.getOptionValue(ARG_OPTIMIZE);
+
+            if (value.endsWith("%"))
+            {
+                value = value.substring(0, value.length() - 1);
+            }
+
+            try
+            {
+                result.setOptimize(Double.parseDouble(value) / 100);
+            }
+            catch (NumberFormatException e)
+            {
+                System.err.println("Invalid optimze percentage");
+                System.exit(1);
+            }
+        }
+
         result.setRecursive(cmd.hasOption(ARG_RECURSIVE));
 
         result.setList(cmd.hasOption(ARG_LIST));
@@ -170,6 +193,7 @@ public class PiconUpOptions
     private String user = "root";
     private String password = "";
     private File imagePath = new File(".");
+    private Double optimize = null;
     private boolean recursive = false;
     private boolean list = false;
     private File dir;
@@ -249,6 +273,16 @@ public class PiconUpOptions
     public void setImagePath(File imagePath)
     {
         this.imagePath = imagePath;
+    }
+
+    public Double getOptimize()
+    {
+        return optimize;
+    }
+
+    public void setOptimize(Double optimize)
+    {
+        this.optimize = optimize;
     }
 
     public boolean isRecursive()

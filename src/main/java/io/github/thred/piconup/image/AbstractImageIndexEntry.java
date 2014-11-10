@@ -3,7 +3,6 @@ package io.github.thred.piconup.image;
 import io.github.thred.piconup.PiconUpTarget;
 import io.github.thred.piconup.util.PiconUpUtil;
 
-import java.awt.Dimension;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -19,7 +18,78 @@ import javax.imageio.ImageIO;
 public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 {
 
-    private final Map<Dimension, BufferedImage> cachedImages = new HashMap<>();
+    private static class Key
+    {
+        private final int width;
+        private final int height;
+        private final double scale;
+
+        public Key(int width, int height, double scale)
+        {
+            super();
+
+            this.width = width;
+            this.height = height;
+            this.scale = scale;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+
+            result = (prime * result) + height;
+
+            long temp;
+            temp = Double.doubleToLongBits(scale);
+
+            result = (prime * result) + (int) (temp ^ (temp >>> 32));
+            result = (prime * result) + width;
+
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+
+            if (obj == null)
+            {
+                return false;
+            }
+
+            if (getClass() != obj.getClass())
+            {
+                return false;
+            }
+
+            Key other = (Key) obj;
+
+            if (height != other.height)
+            {
+                return false;
+            }
+
+            if (Double.doubleToLongBits(scale) != Double.doubleToLongBits(other.scale))
+            {
+                return false;
+            }
+
+            if (width != other.width)
+            {
+                return false;
+            }
+
+            return true;
+        }
+    }
+
+    private final Map<Key, BufferedImage> cachedImages = new HashMap<>();
 
     private final String filename;
     private final String name;
@@ -87,35 +157,63 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
     }
 
     @Override
-    public void write(PiconUpTarget target, File file) throws IOException
+    public void write(PiconUpTarget target, File file, double scale) throws IOException
     {
-        ImageIO.write(get(target), "png", file);
+        ImageIO.write(get(target, scale), "png", file);
     }
 
     @Override
-    public void write(PiconUpTarget target, OutputStream out) throws IOException
+    public void write(PiconUpTarget target, OutputStream out, double scale) throws IOException
     {
-        ImageIO.write(get(target), "png", out);
+        ImageIO.write(get(target, scale), "png", out);
     }
 
-    protected BufferedImage get(PiconUpTarget target) throws IOException
+    @Override
+    public double estimateCoverage() throws IOException
     {
-        Dimension dimension = target.getDimension();
-        BufferedImage result = cachedImages.get(dimension);
+        BufferedImage image = get(100, 60, 1);
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int covered = 0;
+
+        for (int y = 0; y < height; y += 1)
+        {
+            for (int x = 0; x < width; x += 1)
+            {
+                if (((image.getRGB(x, y) >> 24) & 0xff) >= 128)
+                {
+                    covered += 1;
+                }
+                ;
+            }
+        }
+
+        return (double) covered / (width * height);
+    }
+
+    protected BufferedImage get(PiconUpTarget target, double scale) throws IOException
+    {
+        return get(target.getWidth(), target.getHeight(), scale);
+    }
+
+    private BufferedImage get(int width, int height, double scale) throws IOException
+    {
+        Key key = new Key(width, height, scale);
+        BufferedImage result = cachedImages.get(key);
 
         if (result != null)
         {
             return result;
         }
 
-        result = createImage(dimension.width, dimension.height);
+        result = createImage(width, height, scale);
 
-        cachedImages.put(dimension, result);
+        cachedImages.put(key, result);
 
         return result;
     }
 
-    protected BufferedImage createImage(int width, int height) throws IOException
+    protected BufferedImage createImage(int width, int height, double scale) throws IOException
     {
         BufferedImage originalImage = getOriginalImage();
         BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
@@ -127,12 +225,14 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 
         g.translate(width / 2, height / 2);
 
-        double scale = Math.min((double) width / originalImage.getWidth(), (double) height / originalImage.getHeight());
+        double finalScale =
+            Math.min((double) width / originalImage.getWidth(), (double) height / originalImage.getHeight()) * scale;
 
-        g.scale(scale, scale);
+        g.scale(finalScale, finalScale);
         g.translate(-originalImage.getWidth() / 2, -originalImage.getHeight() / 2);
         g.drawImage(originalImage, 0, 0, null);
 
         return image;
     }
+
 }

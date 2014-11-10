@@ -1,13 +1,13 @@
 package io.github.thred.piconup;
 
+import io.github.thred.piconup.image.ImageIndexEntry;
+import io.github.thred.piconup.openwebif.Service;
+import io.github.thred.piconup.util.SCP;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-
-import io.github.thred.piconup.image.ImageIndexEntry;
-import io.github.thred.piconup.openwebif.Service;
-import io.github.thred.piconup.util.SCP;
 
 public class PiconUp
 {
@@ -78,15 +78,33 @@ public class PiconUp
             return;
         }
 
-        System.out.println("Processing " + service.getName());
+        System.out.printf("Processing \"%s\" ...\n", service.getName());
 
         PiconUpOptions options = state.getOptions();
+
+        double scale = 1;
+
+        if (options.getOptimize() != null)
+        {
+            try
+            {
+                double coverage = entry.estimateCoverage();
+
+                System.out.printf("  Coverage: %5.1f %%\n", coverage);
+
+                scale = Math.min(options.getOptimize() / coverage, 1);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace(System.err);
+            }
+        }
 
         if (options.getDir() != null)
         {
             try
             {
-                writeFile(state, service, entry, options.getDir());
+                writeFile(state, service, entry, scale, options.getDir());
             }
             catch (PiconUpException e)
             {
@@ -98,7 +116,7 @@ public class PiconUp
         {
             try
             {
-                writeSsh(state, service, entry, state.getSCP());
+                writeSsh(state, service, entry, scale, state.getSCP());
             }
             catch (PiconUpException e)
             {
@@ -109,7 +127,7 @@ public class PiconUp
         entry.cleanup();
     }
 
-    private static void writeFile(PiconUpState state, Service service, ImageIndexEntry entry, File dir)
+    private static void writeFile(PiconUpState state, Service service, ImageIndexEntry entry, double scale, File dir)
         throws PiconUpException
     {
         String filename = service.getTargetFilename();
@@ -124,7 +142,7 @@ public class PiconUp
 
             try
             {
-                entry.write(target, file);
+                entry.write(target, file, scale);
             }
             catch (IOException e)
             {
@@ -133,7 +151,7 @@ public class PiconUp
         }
     }
 
-    private static void writeSsh(PiconUpState state, Service service, ImageIndexEntry entry, SCP scp)
+    private static void writeSsh(PiconUpState state, Service service, ImageIndexEntry entry, double scale, SCP scp)
         throws PiconUpException
     {
         String filename = service.getTargetFilename();
@@ -151,7 +169,7 @@ public class PiconUp
 
                 try (ByteArrayOutputStream out = new ByteArrayOutputStream())
                 {
-                    entry.write(target, out);
+                    entry.write(target, out, scale);
 
                     bytes = out.toByteArray();
                 }
