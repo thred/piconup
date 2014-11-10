@@ -1,20 +1,13 @@
 package io.github.thred.piconup;
 
-import io.github.thred.piconup.image.ImageIndexEntry;
-import io.github.thred.piconup.openwebif.Service;
-import io.github.thred.piconup.util.PiconUpUtil;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import io.github.thred.piconup.image.ImageIndexEntry;
+import io.github.thred.piconup.openwebif.Service;
+import io.github.thred.piconup.util.SCP;
 
 public class PiconUp
 {
@@ -35,7 +28,7 @@ public class PiconUp
             {
                 if (options.isSsh())
                 {
-                    state.openSession();
+                    state.openSCP();
                 }
 
                 try
@@ -44,7 +37,7 @@ public class PiconUp
                 }
                 finally
                 {
-                    state.closeSession();
+                    state.closeSCP();
                 }
             }
         }
@@ -105,7 +98,7 @@ public class PiconUp
         {
             try
             {
-                writeSsh(state, service, entry, state.getSession());
+                writeSsh(state, service, entry, state.getSCP());
             }
             catch (PiconUpException e)
             {
@@ -140,14 +133,14 @@ public class PiconUp
         }
     }
 
-    private static void writeSsh(PiconUpState state, Service service, ImageIndexEntry entry, Session session)
+    private static void writeSsh(PiconUpState state, Service service, ImageIndexEntry entry, SCP scp)
         throws PiconUpException
     {
         String filename = service.getTargetFilename();
 
         for (PiconUpTarget target : PiconUpTarget.values())
         {
-            String targetFile = "/usr/share/enigma2/" + target.getPath() + filename;
+            String targetFile = scp.getBasePath() + "/" + target.getPath() + filename;
 
             System.out.printf("  Sending %s ...\n", targetFile);
 
@@ -161,72 +154,12 @@ public class PiconUp
 
                     bytes = out.toByteArray();
                 }
-                
-                
 
-                // create the directory
-//                out.write(String.format("D0755 0 %s\n", "        
-//                command += directory.getDirectory().getName();
-//                command += "\n";
-//
-//                if (this.getVerbose()) {
-//                    logger.info("scp command is " + command);
-//                }
-//                
-//                out.write(command.getBytes());
-//                out.flush();
-//
-//                waitForAck(in);
-                
-
-                
-                
-                // exec 'scp -t rfile' remotely
-                String command = "scp -r -d -t " + targetFile;
-                Channel channel = session.openChannel("exec");
-                ((ChannelExec) channel).setCommand(command);
-
-                channel.connect();
-
-                try
-                {
-                    // get I/O streams for remote scp
-                    try (OutputStream out = channel.getOutputStream())
-                    {
-                        InputStream in = channel.getInputStream();
-
-                        if (PiconUpUtil.checkAck(in) != 0)
-                        {
-                            throw new PiconUpException("Failed to connect");
-                        }
-
-                        // send "C0644 filesize filename", where filename should not include '/'
-                        out.write(String.format("C0644 %d %s\n", bytes.length, filename).getBytes());
-                        out.flush();
-
-                        if (PiconUpUtil.checkAck(in) != 0)
-                        {
-                            throw new PiconUpException("Failed to send file");
-                        }
-
-                        out.write(bytes);
-                        out.write(new byte[]{0});
-                        out.flush();
-
-                        if (PiconUpUtil.checkAck(in) != 0)
-                        {
-                            throw new PiconUpException("Failed to send file");
-                        }
-                    }
-                }
-                finally
-                {
-                    channel.disconnect();
-                }
+                scp.write(target.getPath(), bytes);
             }
-            catch (IOException | JSchException e)
+            catch (IOException e)
             {
-                throw new PiconUpException("Failed to send", e);
+                throw new PiconUpException("Failed to send " + targetFile, e);
             }
         }
     }

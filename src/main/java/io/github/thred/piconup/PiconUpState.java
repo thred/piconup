@@ -1,16 +1,14 @@
 package io.github.thred.piconup;
 
+import java.io.IOException;
+import java.util.List;
+
 import io.github.thred.piconup.image.ImageIndex;
 import io.github.thred.piconup.openwebif.GetAllServicesRequest;
 import io.github.thred.piconup.openwebif.Service;
-import io.github.thred.piconup.util.PiconUpUserInfo;
+import io.github.thred.piconup.util.ConsoleSCPUserInfo;
+import io.github.thred.piconup.util.SCP;
 import io.github.thred.piconup.util.Wildcard;
-
-import java.util.List;
-
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
 
 public class PiconUpState
 {
@@ -21,7 +19,7 @@ public class PiconUpState
 
     private ImageIndex imageIndex = null;
 
-    private Session session = null;
+    private SCP scp = null;
 
     public PiconUpState(PiconUpOptions options)
     {
@@ -84,35 +82,34 @@ public class PiconUpState
         return imageIndex;
     }
 
-    public void openSession() throws PiconUpException
+    public void openSCP() throws PiconUpException
     {
-        JSch jsch = new JSch();
+        ConsoleSCPUserInfo userInfo = new ConsoleSCPUserInfo();
+
+        userInfo.setYes(true);
+        userInfo.setPassword(options.getPassword());
 
         try
         {
-            session = jsch.getSession(options.getUser(), options.getHost(), 22);
-            session.setPassword(options.getPassword());
-            session.setUserInfo(new PiconUpUserInfo());
-            session.connect();
+            scp = new SCP(options.getHost(), 22, options.getUser(), userInfo, "/usr/share/enigma2");
         }
-        catch (JSchException e)
+        catch (IOException e)
         {
-            throw new PiconUpException("Failed to connect via SSH", e);
+            throw new PiconUpException("Failed to open ssh connection", e);
         }
     }
 
-    public void closeSession()
+    public void closeSCP()
     {
-        if (session != null)
+        if (scp != null)
         {
-            session.disconnect();
-            session = null;
+            scp.close();
         }
     }
 
-    public Session getSession()
+    public SCP getSCP()
     {
-        return session;
+        return scp;
     }
 
 }
