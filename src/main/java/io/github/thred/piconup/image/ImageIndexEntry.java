@@ -17,9 +17,9 @@ public interface ImageIndexEntry
 
     public double estimateCoverage() throws IOException;
 
-    public void write(PiconUpTarget target, File file, double scale) throws IOException;
+    public void write(PiconUpTarget target, File file, double scale, double border, double transparency) throws IOException;
 
-    public void write(PiconUpTarget target, OutputStream out, double scale) throws IOException;
+    public void write(PiconUpTarget target, OutputStream out, double scale, double border, double transparency) throws IOException;
 
     public void cleanup();
 

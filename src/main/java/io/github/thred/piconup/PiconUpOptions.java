@@ -22,6 +22,8 @@ public class PiconUpOptions
     private static final String ARG_PASSWORD = "password";
     private static final String ARG_IMAGES = "images";
     private static final String ARG_OPTIMIZE = "optimize";
+    private static final String ARG_BORDER = "border";
+    private static final String ARG_TRANSPARENCY = "transparency";
     private static final String ARG_RECURSIVE = "recursive";
     private static final String ARG_LIST = "list";
     private static final String ARG_DIR = "dir";
@@ -42,6 +44,8 @@ public class PiconUpOptions
         options.addOption("i", ARG_IMAGES, true, "The source directory containing all images, default is \".\".");
         options.addOption("o", ARG_OPTIMIZE, true,
             "Optimize the coverage of the image to cover the specified percentage of space.");
+        options.addOption("b", ARG_BORDER, true, "Define a border as percentage of the half width/height.");
+        options.addOption("t", ARG_TRANSPARENCY, true, "Make the picon transparent.");
         options.addOption("r", ARG_RECURSIVE, false, "Search for images in subfolders.");
         options.addOption("l", ARG_LIST, false, "Lists all known services collected from the STB.");
         options.addOption("d", ARG_DIR, true, "Write the images to the specified path.");
@@ -126,20 +130,39 @@ public class PiconUpOptions
 
         if (cmd.hasOption(ARG_OPTIMIZE))
         {
-            String value = cmd.getOptionValue(ARG_OPTIMIZE);
-
-            if (value.endsWith("%"))
-            {
-                value = value.substring(0, value.length() - 1).trim();
-            }
-
             try
             {
-                result.setOptimize(Double.parseDouble(value) / 100);
+                result.setOptimize(getOptionPercentage(cmd, ARG_OPTIMIZE));
             }
             catch (NumberFormatException e)
             {
                 System.err.println("Invalid optimze percentage");
+                System.exit(1);
+            }
+        }
+
+        if (cmd.hasOption(ARG_BORDER))
+        {
+            try
+            {
+                result.setBorder(getOptionPercentage(cmd, ARG_BORDER));
+            }
+            catch (NumberFormatException e)
+            {
+                System.err.println("Invalid border percentage");
+                System.exit(1);
+            }
+        }
+
+        if (cmd.hasOption(ARG_TRANSPARENCY))
+        {
+            try
+            {
+                result.setTransparent(getOptionPercentage(cmd, ARG_TRANSPARENCY));
+            }
+            catch (NumberFormatException e)
+            {
+                System.err.println("Invalid transparency percentage");
                 System.exit(1);
             }
         }
@@ -194,6 +217,8 @@ public class PiconUpOptions
     private String password = "";
     private File imagePath = new File(".");
     private Double optimize = null;
+    private double border = 0;
+    private double transparent = 0;
     private boolean recursive = false;
     private boolean list = false;
     private File dir;
@@ -285,6 +310,26 @@ public class PiconUpOptions
         this.optimize = optimize;
     }
 
+    public Double getBorder()
+    {
+        return border;
+    }
+
+    public void setBorder(Double border)
+    {
+        this.border = border;
+    }
+
+    public Double getTransparent()
+    {
+        return transparent;
+    }
+
+    public void setTransparent(Double transparent)
+    {
+        this.transparent = transparent;
+    }
+
     public boolean isRecursive()
     {
         return recursive;
@@ -361,6 +406,18 @@ public class PiconUpOptions
         HelpFormatter formatter = new HelpFormatter();
 
         formatter.printHelp("java -jar piconUp.jar", options);
+    }
+
+    private static Double getOptionPercentage(CommandLine cmd, String arg)
+    {
+        String value = cmd.getOptionValue(arg);
+
+        if (value.endsWith("%"))
+        {
+            value = value.substring(0, value.length() - 1).trim();
+        }
+
+        return Double.parseDouble(value) / 100;
     }
 
 }
