@@ -11,7 +11,7 @@ public class ImageIndex
 {
 
     private static final String[] PREDEFINED_NAMES = {"3sat.png", "anixe.png", "arte.png", "atv2.png", "atv.png",
-        "br.png", "das_erste.png", "disney_junior.png", "dmax.png", "eins_festival.png", "einsplus.png", "hr.png",
+        "br.png", "das_erste.png", "disney_channel.png", "disney_junior.png", "dmax.png", "eins_festival.png", "einsplus.png", "hr.png",
         "kabel_1.png", "kika.png", "mdr.png", "ndr.png", "orf_1.png", "orf_2.png", "orf_3.png", "orf_sport.png",
         "phoenix.png", "pro7maxx.png", "pro7.png", "puls4.png", "rbb.png", "rtl2.png", "rtlnitro.png", "rtl.png",
         "sat1gold.png", "sat1.png", "servustv.png", "sixx.png", "srf1.png", "srf2.png", "super_rtl.png", "swr.png",
