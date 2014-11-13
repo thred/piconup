@@ -4,6 +4,7 @@ import io.github.thred.piconup.PiconUpException;
 import io.github.thred.piconup.PiconUpOptions;
 import io.github.thred.piconup.util.DOMUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,8 +30,8 @@ public class GetAllServicesRequest extends AbstractRequest
         String response = executeRequest();
         Document document = DOMUtils.read(response);
 
-        return DOMUtils.findAll(document, "//e2service").stream().map(GetAllServicesRequest::parseServiceNode)
-            .collect(Collectors.toList());
+        return new ArrayList<>(DOMUtils.findAll(document, "//e2service").stream().map(GetAllServicesRequest::parseServiceNode)
+            .collect(Collectors.toSet()));
     }
 
     protected static Service parseServiceNode(Node node)

@@ -62,7 +62,13 @@ public class Service implements Comparable<Service>
 
     public String getSourceFilename()
     {
-        return (imageIndexEntry != null) ? imageIndexEntry.getFilename() : "";
+        if (imageIndexEntry == null)
+        {
+            return "";
+        }
+
+        return String.format("%s (%3.1f %% sure)", imageIndexEntry.getFilename(),
+            PiconUpUtil.computeMatchFactor(imageIndexEntry.getSimplifiedName(), simplifiedName) * 100);
     }
 
     @Override

@@ -54,9 +54,14 @@ public class PiconUpUtil
 
         int length = Math.min(left.length(), right.length());
 
+        if (length <= 0)
+        {
+            return 0;
+        }
+
         do
         {
-            result *= 0.9;
+            result -= 1d / length;
 
             left = left.substring(0, length);
             right = right.substring(0, length);
@@ -67,7 +72,7 @@ public class PiconUpUtil
             }
 
             length -= 1;
-        } while (length > 1);
+        } while (length > 2);
 
         return 0;
     }
