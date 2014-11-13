@@ -15,7 +15,7 @@ public interface ImageIndexEntry
 
     public String getSimplifiedName();
 
-    public double estimateCoverage() throws IOException;
+    public double estimateScale(double expectedCoverage) throws IOException;
 
     public void write(PiconUpTarget target, File file, double scale, double border, double transparency) throws IOException;
 

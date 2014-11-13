@@ -1,5 +1,8 @@
 package io.github.thred.piconup.image;
 
+import io.github.thred.piconup.PiconUpTarget;
+import io.github.thred.piconup.util.PiconUpUtil;
+
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -8,13 +11,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
-
-import io.github.thred.piconup.PiconUpTarget;
-import io.github.thred.piconup.util.PiconUpUtil;
 
 public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 {
@@ -177,20 +178,56 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
     public void write(PiconUpTarget target, File file, double scale, double border, double transparency)
         throws IOException
     {
-        ImageIO.write(get(target, scale, border, transparency), "png", file);
+        ImageIO.write(get(target, scale, border, transparency, true), "png", file);
     }
 
     @Override
     public void write(PiconUpTarget target, OutputStream out, double scale, double border, double transparency)
         throws IOException
     {
-        ImageIO.write(get(target, scale, border, transparency), "png", out);
+        ImageIO.write(get(target, scale, border, transparency, true), "png", out);
     }
 
     @Override
-    public double estimateCoverage() throws IOException
+    public double estimateScale(double expectedCoverage) throws IOException
     {
-        BufferedImage image = get(100, 60, 1, 0, 0);
+        double scale = 1;
+        double coverage = estimateCoverage(scale);
+        double initial = coverage;
+
+        if (coverage > expectedCoverage)
+        {
+            double max = 1;
+            double min = 0;
+
+            while (Math.abs(coverage - expectedCoverage) > 0.01)
+            {
+                if (coverage > expectedCoverage)
+                {
+                    max = scale;
+                    scale = (scale + min) * 0.5;
+                }
+                else
+                {
+                    min = scale;
+                    scale = (scale + max) * 0.5;
+                }
+
+                coverage = estimateCoverage(scale);
+            }
+        }
+
+        System.out.printf("  Coverage (target / initial / estimated): %3.1f %% / %3.1f %% / %3.1f %%\n", expectedCoverage * 100, initial * 100, coverage * 100);
+
+        return scale;
+    }
+
+    protected double estimateCoverage(double scale) throws IOException
+    {
+        BufferedImage image = get(100, 60, scale, 0, 0, false);
+
+        fillUp(image);
+
         int width = image.getWidth();
         int height = image.getHeight();
         int covered = 0;
@@ -203,33 +240,41 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
                 {
                     covered += 1;
                 }
-                ;
             }
         }
 
         return (double) covered / (width * height);
     }
 
-    protected BufferedImage get(PiconUpTarget target, double scale, double border, double transparency)
+    protected BufferedImage get(PiconUpTarget target, double scale, double border, double transparency, boolean useCache)
         throws IOException
     {
-        return get(target.getWidth(), target.getHeight(), scale, border, transparency);
+        return get(target.getWidth(), target.getHeight(), scale, border, transparency, useCache);
     }
 
-    private BufferedImage get(int width, int height, double scale, double border, double transparency)
+    private BufferedImage get(int width, int height, double scale, double border, double transparency, boolean useCache)
         throws IOException
     {
-        Key key = new Key(width, height, scale, border, transparency);
-        BufferedImage result = cachedImages.get(key);
+        Key key = null;
+        BufferedImage result = null;
 
-        if (result != null)
+        if (useCache)
         {
-            return result;
+            key = new Key(width, height, scale, border, transparency);
+            result = cachedImages.get(key);
+
+            if (result != null)
+            {
+                return result;
+            }
         }
 
         result = createImage(width, height, scale, border, transparency);
 
-        cachedImages.put(key, result);
+        if (useCache)
+        {
+            cachedImages.put(key, result);
+        }
 
         return result;
     }
@@ -261,6 +306,49 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
         }
 
         g.drawImage(originalImage, 0, 0, null);
+
+        return image;
+    }
+
+    private static BufferedImage fillUp(BufferedImage image)
+    {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        int[] minX = new int[height];
+        int[] maxX = new int[height];
+        int[] minY = new int[width];
+        int[] maxY = new int[width];
+
+        Arrays.fill(minX, Integer.MAX_VALUE);
+        Arrays.fill(maxX, Integer.MIN_VALUE);
+        Arrays.fill(minY, Integer.MAX_VALUE);
+        Arrays.fill(maxY, Integer.MIN_VALUE);
+
+        for (int y = 0; y < height; y += 1)
+        {
+            for (int x = 0; x < width; x += 1)
+            {
+                if (((image.getRGB(x, y) >> 24) & 0xff) >= 128)
+                {
+                    minX[y] = Math.min(minX[y], x);
+                    maxX[y] = Math.max(maxX[y], x);
+                    minY[x] = Math.min(minY[x], y);
+                    maxY[x] = Math.max(maxY[x], y);
+                }
+            }
+        }
+
+        for (int y = 0; y < height; y += 1)
+        {
+            for (int x = 0; x < width; x += 1)
+            {
+                if (((x > minX[y]) && (x < maxX[y])) || ((y > minY[x]) && (y < maxY[x])))
+                {
+                    image.setRGB(x, y, 0xff000000);
+                }
+            }
+        }
 
         return image;
     }
