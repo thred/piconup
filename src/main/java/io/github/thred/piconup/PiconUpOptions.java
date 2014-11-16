@@ -43,7 +43,9 @@ public class PiconUpOptions
         options.addOption("p", ARG_PASSWORD, true, "The password for login, default is \"\".");
         options.addOption("i", ARG_IMAGES, true, "The source directory containing all images, default is \".\".");
         options.addOption("o", ARG_OPTIMIZE, true,
-            "Optimize the coverage of the image to cover the specified percentage of space.");
+            "Optimize the coverage of the image to cover the specified percentage of space. "
+                + "This will make all the picons look the same size no matter if it is rectangular or square. "
+                + "30% to 50% seem to be good values.");
         options.addOption("b", ARG_BORDER, true, "Define a border as percentage of the half width/height.");
         options.addOption("t", ARG_TRANSPARENCY, true, "Make the picon transparent.");
         options.addOption("r", ARG_RECURSIVE, false, "Search for images in subfolders.");
@@ -55,6 +57,8 @@ public class PiconUpOptions
 
         CommandLineParser parser = new BasicParser();
         CommandLine cmd = null;
+
+        boolean meaningfulOptions = false;
 
         try
         {
@@ -70,6 +74,8 @@ public class PiconUpOptions
 
         if (cmd.hasOption(ARG_HELP))
         {
+            meaningfulOptions = true;
+
             printHelp(options);
             System.exit(0);
         }
@@ -169,10 +175,17 @@ public class PiconUpOptions
 
         result.setRecursive(cmd.hasOption(ARG_RECURSIVE));
 
-        result.setList(cmd.hasOption(ARG_LIST));
+        if (cmd.hasOption(ARG_LIST))
+        {
+            meaningfulOptions = true;
+
+            result.setList(true);
+        }
 
         if (cmd.hasOption(ARG_DIR))
         {
+            meaningfulOptions = true;
+
             File dir = new File(cmd.getOptionValue(ARG_DIR));
 
             if ((!dir.mkdirs()) && (!dir.canWrite()))
@@ -184,10 +197,17 @@ public class PiconUpOptions
             result.setDir(dir);
         }
 
-        result.setSsh(cmd.hasOption(ARG_SSH));
+        if (cmd.hasOption(ARG_SSH))
+        {
+            meaningfulOptions = true;
+
+            result.setSsh(cmd.hasOption(ARG_SSH));
+        }
 
         if (cmd.hasOption(ARG_ZIP))
         {
+            meaningfulOptions = true;
+
             File zip = new File(cmd.getOptionValue(ARG_ZIP));
 
             if (!zip.canWrite())
@@ -207,7 +227,14 @@ public class PiconUpOptions
         }
 
         result.setPatterns(patterns.toArray(new String[patterns.size()]));
-
+        
+        if (!meaningfulOptions) {
+            System.err.println("Too few arguments.");
+            
+            printHelp(options);
+            System.exit(1);
+        }
+        
         return result;
     }
 
@@ -405,7 +432,10 @@ public class PiconUpOptions
 
         HelpFormatter formatter = new HelpFormatter();
 
-        formatter.printHelp("java -jar piconUp.jar", options);
+        formatter.printHelp("piconup [option(s)] [service(s)]", options);
+        
+        System.out.println();
+        System.out.println("The services use the apprevated format and may contain regular expressions.");
     }
 
     private static Double getOptionPercentage(CommandLine cmd, String arg)
