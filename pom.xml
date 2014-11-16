@@ -80,6 +80,7 @@
 						</manifest>
 					</archive>
 					<finalName>piconup</finalName>
+					<outputDirectory>bin</outputDirectory>
 					<appendAssemblyId>false</appendAssemblyId>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
