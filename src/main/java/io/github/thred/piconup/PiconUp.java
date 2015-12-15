@@ -1,13 +1,13 @@
 package io.github.thred.piconup;
 
-import io.github.thred.piconup.image.ImageIndexEntry;
-import io.github.thred.piconup.openwebif.Service;
-import io.github.thred.piconup.util.SCP;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+
+import io.github.thred.piconup.image.ImageIndexEntry;
+import io.github.thred.piconup.openwebif.Service;
+import io.github.thred.piconup.util.SCP;
 
 public class PiconUp
 {

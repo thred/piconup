@@ -184,8 +184,8 @@ public class SCP implements Closeable
 
             if (totalLength != contentLength)
             {
-                throw new IOException(String.format("Content lenght does not match real length: %d != %d",
-                    contentLength, totalLength));
+                throw new IOException(
+                    String.format("Content lenght does not match real length: %d != %d", contentLength, totalLength));
             }
 
             sendAck();

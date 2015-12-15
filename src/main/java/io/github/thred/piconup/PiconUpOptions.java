@@ -227,14 +227,15 @@ public class PiconUpOptions
         }
 
         result.setPatterns(patterns.toArray(new String[patterns.size()]));
-        
-        if (!meaningfulOptions) {
+
+        if (!meaningfulOptions)
+        {
             System.err.println("Too few arguments.");
-            
+
             printHelp(options);
             System.exit(1);
         }
-        
+
         return result;
     }
 
@@ -433,7 +434,7 @@ public class PiconUpOptions
         HelpFormatter formatter = new HelpFormatter();
 
         formatter.printHelp("piconup [option(s)] [service(s)]", options);
-        
+
         System.out.println();
         System.out.println("The services use the apprevated format and may contain regular expressions.");
     }

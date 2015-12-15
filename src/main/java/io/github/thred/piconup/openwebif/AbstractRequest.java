@@ -1,8 +1,5 @@
 package io.github.thred.piconup.openwebif;
 
-import io.github.thred.piconup.PiconUpException;
-import io.github.thred.piconup.PiconUpOptions;
-
 import java.io.IOException;
 import java.net.URI;
 
@@ -13,6 +10,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+
+import io.github.thred.piconup.PiconUpException;
+import io.github.thred.piconup.PiconUpOptions;
 
 public abstract class AbstractRequest
 {
@@ -57,9 +57,9 @@ public abstract class AbstractRequest
             try
             {
                 System.out.println(response.getStatusLine());
-                
+
                 HttpEntity entity = response.getEntity();
-                
+
                 return EntityUtils.toString(entity, "UTF-8");
             }
             finally

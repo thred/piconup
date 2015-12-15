@@ -1,10 +1,10 @@
 package io.github.thred.piconup.image;
 
-import io.github.thred.piconup.PiconUpTarget;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+
+import io.github.thred.piconup.PiconUpTarget;
 
 public interface ImageIndexEntry
 {
@@ -17,9 +17,11 @@ public interface ImageIndexEntry
 
     public double estimateScale(double expectedCoverage) throws IOException;
 
-    public void write(PiconUpTarget target, File file, double scale, double border, double transparency) throws IOException;
+    public void write(PiconUpTarget target, File file, double scale, double border, double transparency)
+        throws IOException;
 
-    public void write(PiconUpTarget target, OutputStream out, double scale, double border, double transparency) throws IOException;
+    public void write(PiconUpTarget target, OutputStream out, double scale, double border, double transparency)
+        throws IOException;
 
     public void cleanup();
 

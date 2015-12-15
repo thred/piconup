@@ -1,8 +1,5 @@
 package io.github.thred.piconup.image;
 
-import io.github.thred.piconup.PiconUpTarget;
-import io.github.thred.piconup.util.PiconUpUtil;
-
 import java.awt.AlphaComposite;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -16,6 +13,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+
+import io.github.thred.piconup.PiconUpTarget;
+import io.github.thred.piconup.util.PiconUpUtil;
 
 public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 {
@@ -217,7 +217,8 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
             }
         }
 
-        System.out.printf("  Coverage (target / initial / estimated): %3.1f %% / %3.1f %% / %3.1f %%\n", expectedCoverage * 100, initial * 100, coverage * 100);
+        System.out.printf("  Coverage (target / initial / estimated): %3.1f %% / %3.1f %% / %3.1f %%\n",
+            expectedCoverage * 100, initial * 100, coverage * 100);
 
         return scale;
     }
@@ -246,8 +247,8 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
         return (double) covered / (width * height);
     }
 
-    protected BufferedImage get(PiconUpTarget target, double scale, double border, double transparency, boolean useCache)
-        throws IOException
+    protected BufferedImage get(PiconUpTarget target, double scale, double border, double transparency,
+        boolean useCache) throws IOException
     {
         return get(target.getWidth(), target.getHeight(), scale, border, transparency, useCache);
     }
@@ -292,10 +293,8 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 
         g.translate(width / 2, height / 2);
 
-        double finalScale =
-            Math.min((width * (1 - border)) / originalImage.getWidth(),
-                (height * (1 - border)) / originalImage.getHeight())
-                * scale;
+        double finalScale = Math.min((width * (1 - border)) / originalImage.getWidth(),
+            (height * (1 - border)) / originalImage.getHeight()) * scale;
 
         g.scale(finalScale, finalScale);
         g.translate(-originalImage.getWidth() / 2, -originalImage.getHeight() / 2);
