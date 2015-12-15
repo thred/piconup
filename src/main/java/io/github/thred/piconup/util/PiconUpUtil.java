@@ -10,6 +10,10 @@ public class PiconUpUtil
 
     static
     {
+        synonym("AE", "\u00c4");
+        synonym("OE", "\u00d6");
+        synonym("UE", "\u00dc");
+        synonym("SZ", "\u00df");
         synonym("9", "NEUN\\b", "NINE\\b", "\\bIX\\b");
         synonym("8", "ACHT\\b", "EIGHT\\b", "\\bVIII\\b");
         synonym("7", "SIEBEN\\b", "SEVEN\\b", "\\bVII\\b");

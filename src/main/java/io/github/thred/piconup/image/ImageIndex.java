@@ -15,14 +15,15 @@ public class ImageIndex
         "atv.png", "axn.png", "bbc_entertainment.png", "bbc_world.png", "beate_uhse_tv.png", "bibel_tv.png",
         "bloomberg_tv.png", "blue_movie.png", "bn_music.png", "bn_sat.png", "br.png", "bvn.png", "cnn_int.png",
         "das_erste.png", "deluxe_music.png", "discovery_channel.png", "disney_channel.png", "disney_cinematic.png",
-        "disney_junior.png", "disney_xd.png", "dmax.png", "dm_sat.png", "duna_tv.png", "dw_tv.png", "eins_festival.png",
-        "einsplus.png", "euro_d.png", "euronews.png", "eurosport.png", "eurostar.png", "ewtn.png", "fashionone.png",
-        "fox.png", "fox_series.png", "frace_24.png", "fs1salzburg.png", "goldstar_tv.png", "gotv.png",
-        "heimatkanal.png", "history.png", "hitradio_oe3.png", "hr.png", "hse24.png", "kabel_1.png", "kika.png",
-        "mdr.png", "ndr.png", "orf_1.png", "orf_2.png", "orf_3.png", "orf_sport.png", "phoenix.png", "pro7maxx.png",
-        "pro7.png", "puls4.png", "rbb.png", "rtl2.png", "rtlnitro.png", "rtl.png", "sat1gold.png", "sat1.png",
-        "servustv.png", "sixx.png", "srf1.png", "srf2.png", "super_rtl.png", "swr.png", "tele5.png", "viva.png",
-        "vox.png", "wdr.png", "zdf_info.png", "zdf_kultur.png", "zdf_neo.png", "zdf.png"};
+        "disney_junior.png", "disney_xd.png", "dmax.png", "dorfgastein_tv.png", "dm_sat.png", "duna_tv.png",
+        "dw_tv.png", "einplus.png", "eins_festival.png", "einsplus.png", "euro_d.png", "euronews.png", "eurosport.png",
+        "eurostar.png", "ewtn.png", "fashionone.png", "fox.png", "fox_series.png", "france_24.png", "fs1salzburg.png",
+        "gastein_tv.jpg", "goldstar_tv.png", "gotv.png", "grossglockner_tv.jpg", "heimatkanal.png", "history.png",
+        "hitradio_oe3.png", "hochkoenig_tv.png", "hr.png", "hse24.png", "kabel_1.png", "kika.png", "mdr.png", "ndr.png", "orf_1.png",
+        "orf_2.png", "orf_3.png", "orf_sport.png", "phoenix.png", "pro7maxx.png", "pro7.png", "puls4.png", "rbb.png",
+        "rtl2.png", "rtlnitro.png", "rtl.png", "sat1gold.png", "sat1.png", "servustv.png", "sixx.png", "srf1.png",
+        "srf2.png", "super_rtl.png", "swr.png", "tele5.png", "viva.png", "vox.png", "wdr.png", "zdf_info.png",
+        "zdf_kultur.png", "zdf_neo.png", "zdf.png"};
 
     public static ImageIndex createPredefined()
     {
