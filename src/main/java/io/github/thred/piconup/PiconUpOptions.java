@@ -429,7 +429,7 @@ public class PiconUpOptions
         System.out.println("Create and update picons for your STB.");
         System.out.println();
         System.out.println("PiconUp connects to your STB and grabs the names of all defined channels.");
-        System.out.println("Using this name, it uses fully logic to search for images in the specified");
+        System.out.println("Using this name, it uses fuzzy logic to search for images in the specified");
         System.out.println("directory. If it findes an image, it scales it accoringly and sends it to");
         System.out.println("the STB or puts it into an archive.");
         System.out.println();

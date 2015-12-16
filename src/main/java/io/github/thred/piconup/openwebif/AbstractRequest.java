@@ -75,25 +75,5 @@ public abstract class AbstractRequest
         {
             throw new PiconUpException("Request failed", e);
         }
-
-        //        HttpPost httpPost = new HttpPost("http://targethost/login");
-        //        List<NameValuePair> nvps = new ArrayList<NameValuePair>();
-        //        nvps.add(new BasicNameValuePair("username", "vip"));
-        //        nvps.add(new BasicNameValuePair("password", "secret"));
-        //        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-        //        CloseableHttpResponse response2 = httpClient.execute(httpPost);
-        //
-        //        try
-        //        {
-        //            System.out.println(response2.getStatusLine());
-        //            HttpEntity entity2 = response2.getEntity();
-        //            // do something useful with the response body
-        //            // and ensure it is fully consumed
-        //            EntityUtils.consume(entity2);
-        //        }
-        //        finally
-        //        {
-        //            response2.close();
-        //        }
     }
 }
