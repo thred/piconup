@@ -1,6 +1,7 @@
 package io.github.thred.piconup.image;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
@@ -24,15 +25,17 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
     {
         private final int width;
         private final int height;
+        private final Color background;
         private final double scale;
         private final double border;
         private final double transparency;
 
-        public Key(int width, int height, double scale, double border, double transparency)
+        public Key(int width, int height, Color background, double scale, double border, double transparency)
         {
             super();
             this.width = width;
             this.height = height;
+            this.background = background;
             this.scale = scale;
             this.border = border;
             this.transparency = transparency;
@@ -43,14 +46,20 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
         {
             final int prime = 31;
             int result = 1;
-            long temp;
 
-            temp = Double.doubleToLongBits(border);
+            result = (prime * result) + ((background == null) ? 0 : background.hashCode());
+
+            long temp = Double.doubleToLongBits(border);
+
             result = (prime * result) + (int) (temp ^ (temp >>> 32));
             result = (prime * result) + height;
+
             temp = Double.doubleToLongBits(scale);
+
             result = (prime * result) + (int) (temp ^ (temp >>> 32));
+
             temp = Double.doubleToLongBits(transparency);
+
             result = (prime * result) + (int) (temp ^ (temp >>> 32));
             result = (prime * result) + width;
 
@@ -76,6 +85,18 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
             }
 
             Key other = (Key) obj;
+
+            if (background == null)
+            {
+                if (other.background != null)
+                {
+                    return false;
+                }
+            }
+            else if (!background.equals(other.background))
+            {
+                return false;
+            }
 
             if (Double.doubleToLongBits(border) != Double.doubleToLongBits(other.border))
             {
@@ -175,17 +196,17 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
     }
 
     @Override
-    public void write(PiconUpTarget target, File file, double scale, double border, double transparency)
-        throws IOException
+    public void write(PiconUpTarget target, File file, Color background, double scale, double border,
+        double transparency) throws IOException
     {
-        ImageIO.write(get(target, scale, border, transparency, true), "png", file);
+        ImageIO.write(get(target, background, scale, border, transparency, true), "png", file);
     }
 
     @Override
-    public void write(PiconUpTarget target, OutputStream out, double scale, double border, double transparency)
-        throws IOException
+    public void write(PiconUpTarget target, OutputStream out, Color background, double scale, double border,
+        double transparency) throws IOException
     {
-        ImageIO.write(get(target, scale, border, transparency, true), "png", out);
+        ImageIO.write(get(target, background, scale, border, transparency, true), "png", out);
     }
 
     @Override
@@ -225,7 +246,7 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 
     protected double estimateCoverage(double scale) throws IOException
     {
-        BufferedImage image = get(100, 60, scale, 0, 0, false);
+        BufferedImage image = get(100, 60, null, scale, 0, 0, false);
 
         fillUp(image);
 
@@ -247,21 +268,21 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
         return (double) covered / (width * height);
     }
 
-    protected BufferedImage get(PiconUpTarget target, double scale, double border, double transparency,
-        boolean useCache) throws IOException
+    protected BufferedImage get(PiconUpTarget target, Color background, double scale, double border,
+        double transparency, boolean useCache) throws IOException
     {
-        return get(target.getWidth(), target.getHeight(), scale, border, transparency, useCache);
+        return get(target.getWidth(), target.getHeight(), background, scale, border, transparency, useCache);
     }
 
-    private BufferedImage get(int width, int height, double scale, double border, double transparency, boolean useCache)
-        throws IOException
+    private BufferedImage get(int width, int height, Color background, double scale, double border, double transparency,
+        boolean useCache) throws IOException
     {
         Key key = null;
         BufferedImage result = null;
 
         if (useCache)
         {
-            key = new Key(width, height, scale, border, transparency);
+            key = new Key(width, height, background, scale, border, transparency);
             result = cachedImages.get(key);
 
             if (result != null)
@@ -270,7 +291,7 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
             }
         }
 
-        result = createImage(width, height, scale, border, transparency);
+        result = createImage(width, height, background, scale, border, transparency);
 
         if (useCache)
         {
@@ -280,7 +301,7 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
         return result;
     }
 
-    BufferedImage createImage(int width, int height, double scale, double border, double transparency)
+    BufferedImage createImage(int width, int height, Color background, double scale, double border, double transparency)
         throws IOException
     {
         BufferedImage originalImage = getOriginalImage();
@@ -291,6 +312,17 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
         g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
         g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 
+        if (transparency > 0)
+        {
+            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (1 - transparency)));
+        }
+
+        if (background != null)
+        {
+            g.setPaint(background);
+            g.fillRect(0, 0, width, height);
+        }
+
         g.translate(width / 2, height / 2);
 
         double finalScale = Math.min((width * (1 - border)) / originalImage.getWidth(),
@@ -298,11 +330,6 @@ public abstract class AbstractImageIndexEntry implements ImageIndexEntry
 
         g.scale(finalScale, finalScale);
         g.translate(-originalImage.getWidth() / 2, -originalImage.getHeight() / 2);
-
-        if (transparency > 0)
-        {
-            g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, (float) (1 - transparency)));
-        }
 
         g.drawImage(originalImage, 0, 0, null);
 

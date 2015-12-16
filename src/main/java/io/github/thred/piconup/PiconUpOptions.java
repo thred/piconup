@@ -1,5 +1,6 @@
 package io.github.thred.piconup;
 
+import java.awt.Color;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,6 +25,7 @@ public class PiconUpOptions
     private static final String ARG_OPTIMIZE = "optimize";
     private static final String ARG_BORDER = "border";
     private static final String ARG_TRANSPARENCY = "transparency";
+    private static final String ARG_BACKGROUND = "background";
     private static final String ARG_RECURSIVE = "recursive";
     private static final String ARG_LIST = "list";
     private static final String ARG_DIR = "dir";
@@ -48,6 +50,7 @@ public class PiconUpOptions
                 + "30% to 50% seem to be good values.");
         options.addOption("b", ARG_BORDER, true, "Define a border as percentage of the half width/height.");
         options.addOption("t", ARG_TRANSPARENCY, true, "Make the picon transparent.");
+        options.addOption("bg", ARG_BACKGROUND, true, "Use the 24-bit hex background color for all images.");
         options.addOption("r", ARG_RECURSIVE, false, "Search for images in subfolders.");
         options.addOption("l", ARG_LIST, false, "Lists all known services collected from the STB.");
         options.addOption("d", ARG_DIR, true, "Write the images to the specified path.");
@@ -70,7 +73,7 @@ public class PiconUpOptions
 
             printHelp(options);
             System.exit(1);
-            
+
             // to avoid warning
             return null;
         }
@@ -176,6 +179,19 @@ public class PiconUpOptions
             }
         }
 
+        if (cmd.hasOption(ARG_BACKGROUND))
+        {
+            try
+            {
+                result.setBackground(Color.decode(cmd.getOptionValue(ARG_BACKGROUND)));
+            }
+            catch (NumberFormatException e)
+            {
+                System.err.println("Invalid color value");
+                System.exit(1);
+            }
+        }
+
         result.setRecursive(cmd.hasOption(ARG_RECURSIVE));
 
         if (cmd.hasOption(ARG_LIST))
@@ -250,6 +266,7 @@ public class PiconUpOptions
     private Double optimize = null;
     private double border = 0;
     private double transparent = 0;
+    private Color background = null;
     private boolean recursive = false;
     private boolean list = false;
     private File dir;
@@ -359,6 +376,16 @@ public class PiconUpOptions
     public void setTransparent(Double transparent)
     {
         this.transparent = transparent;
+    }
+
+    public Color getBackground()
+    {
+        return background;
+    }
+
+    public void setBackground(Color background)
+    {
+        this.background = background;
     }
 
     public boolean isRecursive()

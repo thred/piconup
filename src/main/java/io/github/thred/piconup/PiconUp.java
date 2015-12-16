@@ -139,7 +139,8 @@ public class PiconUp
 
             try
             {
-                entry.write(target, file, scale, options.getBorder(), options.getTransparent());
+                entry.write(target, file, options.getBackground(), scale, options.getBorder(),
+                    options.getTransparent());
             }
             catch (IOException e)
             {
@@ -167,7 +168,8 @@ public class PiconUp
 
                 try (ByteArrayOutputStream out = new ByteArrayOutputStream())
                 {
-                    entry.write(target, out, scale, options.getBorder(), options.getTransparent());
+                    entry.write(target, out, options.getBackground(), scale, options.getBorder(),
+                        options.getTransparent());
 
                     bytes = out.toByteArray();
                 }
