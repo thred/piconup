@@ -70,6 +70,9 @@ public class PiconUpOptions
 
             printHelp(options);
             System.exit(1);
+            
+            // to avoid warning
+            return null;
         }
 
         if (cmd.hasOption(ARG_HELP))
