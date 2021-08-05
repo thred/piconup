@@ -37,17 +37,20 @@ public class PiconUpOptions
     {
         Options options = new Options();
 
-        options.addOption("h", ARG_HOST, true,
-            "The hostname or IP address of STB (used for both, the OpenWebIF and the SSH connection).");
-        options.addOption(null, ARG_OPEN_WEB_IF_URL, true,
-            "The URL to the OpenWebIF. Uses \"http://<host>\" if not specified.");
+        options
+            .addOption("h", ARG_HOST, true,
+                "The hostname or IP address of STB (used for both, the OpenWebIF and the SSH connection).");
+        options
+            .addOption(null, ARG_OPEN_WEB_IF_URL, true,
+                "The URL to the OpenWebIF. Uses \"http://<host>\" if not specified.");
         options.addOption("u", ARG_USER, true, "The username for login, default is \"root\".");
         options.addOption("p", ARG_PASSWORD, true, "The password for login, default is \"\".");
         options.addOption("i", ARG_IMAGES, true, "The source directory containing all images, default is \".\".");
-        options.addOption("o", ARG_OPTIMIZE, true,
-            "Optimize the coverage of the image to cover the specified percentage of space. "
-                + "This will make all the picons look the same size no matter if it is rectangular or square. "
-                + "30% to 50% seem to be good values.");
+        options
+            .addOption("o", ARG_OPTIMIZE, true,
+                "Optimize the coverage of the image to cover the specified percentage of space. "
+                    + "This will make all the picons look the same size no matter if it is rectangular or square. "
+                    + "30% to 50% seem to be good values.");
         options.addOption("b", ARG_BORDER, true, "Define a border as percentage of the half width/height.");
         options.addOption("t", ARG_TRANSPARENCY, true, "Make the picon transparent.");
         options.addOption("bg", ARG_BACKGROUND, true, "Use the 24-bit hex background color for all images.");
@@ -207,7 +210,7 @@ public class PiconUpOptions
 
             File dir = new File(cmd.getOptionValue(ARG_DIR));
 
-            if ((!dir.mkdirs()) && (!dir.canWrite()))
+            if (!dir.mkdirs() && !dir.canWrite())
             {
                 System.err.println("Cannot write to path: " + dir.getAbsolutePath());
                 System.exit(1);
@@ -310,7 +313,7 @@ public class PiconUpOptions
 
     public boolean isOpenWebIFURL()
     {
-        return (host != null) || (openWebIFURL != null);
+        return host != null || openWebIFURL != null;
     }
 
     public void setOpenWebIFURL(URL openWebIFURL)
